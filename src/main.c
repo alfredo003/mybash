@@ -9,6 +9,7 @@ int main(void) {
             break;
         }
         if (input[0] != '\0') {
+            add_history(input);
             verify_command(input);
         }
         free(input);

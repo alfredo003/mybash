@@ -1,56 +1,94 @@
-
-int execute_command(char *input) {
+#include <mybash.h> 
+int execute_command(char *input)
+{
     char *args[64];
+	extern	char **environ;
     int i = 0;
-    char *token = strtok(input, " ");
-    
-    while (token != NULL && i < 63) {  // Limite para evitar estouro
-        args[i++] = token;
-        token = strtok(NULL, " ");
-    }
-    args[i] = NULL;  // Último elemento precisa ser NULL para execve
-
-    pid_t pid = fork();
-    if (pid == -1) {
-        perror("Fork failed");
+    char **token = ft_split(input, ' ');  
+    if (token == NULL)
+    {
+        perror("Error splitting input\n");
         return -1;
     }
 
-    if (pid == 0) {  // Processo filho
-        if (strchr(args[0], '/') != NULL) {
-            // Executar diretamente o comando se for um caminho
-            if (execve(args[0], args, NULL) == -1) {
-                perror("Command execution failed");
-                exit(EXIT_FAILURE);
-            }
-        } else {
-            // Se não for um caminho, buscar no PATH
-            char *path = getenv("PATH");
-            if (path == NULL) {
-                fprintf(stderr, "PATH not set\n");
-                exit(EXIT_FAILURE);
-            }
+    while (token[i] != NULL && i < 63)
+    {
+        args[i] = token[i];
+        i++;
+    }
+    args[i] = NULL;
 
-            char *directory = strtok(path, ":");
-            while (directory != NULL) {
-                char full_path[1024];
-                snprintf(full_path, sizeof(full_path), "%s/%s", directory, args[0]);
-                
-                // Verificar se o caminho construído é executável
-                if (access(full_path, X_OK) == 0) {
-                    execve(full_path, args, NULL);  // Executa o comando encontrado
-                    perror("Command execution failed");
-                    exit(EXIT_FAILURE);
-                }
-                directory = strtok(NULL, ":");
-            }
-        }
-        fprintf(stderr, "Command not found\n");
-        exit(EXIT_FAILURE);
-    } else {  // Processo pai
-        int status;
-        waitpid(pid, &status, 0);  // Espera o processo filho terminar
+    pid_t pid = fork();
+    if (pid == -1)
+    {
+        perror("Fork failed");
+        free(token);
+        return -1;
     }
 
-    return 0;
+    if (pid == 0)
+    {
+		if (ft_strchr(args[0], '/'))
+		{
+		    if (execve(args[0], args, environ) == -1)
+		    {
+				perror("Command execution failed");
+				exit(EXIT_FAILURE);
+		    }
+		}
+		else
+		{
+		    char *path = getenv("PATH");
+		    if (path == NULL)
+		    {
+				perror("PATH not set\n");
+				exit(EXIT_FAILURE);
+		    }
+
+		    char *path_copy = ft_strdup(path);
+		    if (path_copy == NULL)
+		    {
+				perror("Memory allocation failed");
+				exit(EXIT_FAILURE);
+		    }
+
+		    char *directory;
+		    char *save_ptr;
+		    directory = strtok_r(path_copy, ":", &save_ptr);
+
+		    while (directory != NULL)
+		    {
+				char full_path[1024];
+				snprintf(full_path, sizeof(full_path), "%s/%s", directory, args[0]);
+
+				if (access(full_path, X_OK) == 0)
+				{
+					execve(full_path, args, environ);
+					perror("Command execution failed");
+					free(path_copy);
+					exit(EXIT_FAILURE);
+				}
+				directory = strtok_r(NULL, ":", &save_ptr);
+		    }
+
+		    printf("Command not found: %s\n", args[0]);
+		    free(path_copy);
+		    exit(EXIT_FAILURE);
+		}
+	}
+	else
+	{
+		int status;
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status) && WEXITSTATUS(status) != 0)
+		{
+		    fprintf(stderr, "Child process exited with error code %d\n", WEXITSTATUS(status));
+		}
+	}
+
+	free(token);
+	return 0;
 }
+
+
+

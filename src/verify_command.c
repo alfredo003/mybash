@@ -30,6 +30,6 @@ void verify_command(char *input)
 	}
 	else
 	{
-		printf("Erroo!\n");
+		execute_command(input);
 	}
 }

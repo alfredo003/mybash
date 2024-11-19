@@ -2,7 +2,8 @@ NAME = mybash
 CC = gcc
 CFLAGS = -Wall -Wextra -Werror -Iheader
 SRC = ./src/main.c \
-	./src/verify_command.c 
+	./src/verify_command.c \
+	./src/exec_commad.c 
 LIBFT_DIR = ./libs/libft
 LIBFT = $(LIBFT_DIR)/libft.a
 OBJS = $(SRC:.c=.o)

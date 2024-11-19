@@ -7,5 +7,8 @@
 #include <readline/history.h>
 # include <stdlib.h>
 # include <unistd.h> 
+# include <sys/wait.h>
+#include <sys/types.h>
 void verify_command(char *input); 
+int execute_command(char *input);
 # endif
