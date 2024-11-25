@@ -9,6 +9,7 @@
 # include <unistd.h> 
 # include <sys/wait.h>
 #include <sys/types.h>
-void verify_command(char *input); 
-int execute_command(char *input);
+
+void init_shell(t_shell *shell);
+
 # endif

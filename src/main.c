@@ -1,20 +1,11 @@
-#include <mybash.h> 
+#include "mybash.h" 
 
-int main(void) {
-    char *input;
+int main(int ac, char **av, char **env)
+{
 
-    while (1) {
-        input = readline("\033[0;31mmybash\033[0m$ ");
-        if (input == NULL) { 
-            break;
-        }
-        if (input[0] != '\0') {
-            add_history(input);
-            verify_command(input);
-        }
-        free(input);
-    }
+    t_shell shell;
 
+    init_shell(&shell);
     return 0;
 }
 
